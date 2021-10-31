@@ -12,8 +12,6 @@ time_end = 60
 t_data = np.arange(0,time_end,sample_time)
 x_data = np.zeros_like(t_data)
 y_data = np.zeros_like(t_data)
-x_solution = np.zeros_like(t_data)
-y_solution = np.zeros_like(t_data)
 
 # maintain velocity at 4 m/s
 v_data = np.zeros_like(t_data)
@@ -56,13 +54,8 @@ for i in range(t_data.shape[0]):
     x_data[i] = model.xc
     y_data[i] = model.yc
     model.step(v_data[i], w_data[i])
-
-    #x_solution[i] = solution_model.xc
-    #y_solution[i] = solution_model.yc
-    #solution_model.step(v_data[i], w_data[i])
     
 plt.axis('equal')
 plt.plot(x_data, y_data,label='Learner Model')
-#plt.plot(x_solution, y_solution,label='Solution Model')
 plt.legend()
 plt.show()

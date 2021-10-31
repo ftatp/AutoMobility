@@ -23,12 +23,6 @@ for i in range(t_data.shape[0]):
     model.step(np.pi, 0)
     model.beta = 0
 
-#plt.axis('equal')
-#plt.plot(x_data, y_data,label='Learner Model')
-#plt.legend()
-#plt.show()
-#
-
 x_data_new = np.zeros_like(t_data)
 
 for i in range(t_data.shape[0]):
