@@ -1,5 +1,15 @@
-1. To use this code, you must install Carla simulation first
+1. To use this code, you must install Carla simulation first.
+
+After the installation use the below command at the Carla top directory
+(Only for Ubuntu)
+
+./CarlaUE4.sh /Game/Maps/RaceTrack -windowed -carla-server -benchmark -fps=30
+
+Then, run module_7.py
+
 2. After installation, check control2d.py. 
     In this file, you can check how to control the vehicle with longitude, 
     latitude control model, throttle, break.
 3. This can be controlled in multiple methods. In my case, I have used waypoint model
+
+
