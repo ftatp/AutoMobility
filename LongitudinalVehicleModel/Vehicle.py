@@ -46,3 +46,31 @@ class Vehicle():
         self.a = 0
         self.w_e = 100
         self.w_e_dot = 0
+
+    def step(self, throttle, alpha):
+        # ==================================
+        #  Implement vehicle model here
+        # ==================================
+        T_e = throttle * (self.a_0 + self.a_1 * self.w_e + self.a_2 * (self.w_e**2))
+
+
+        F_areo = self.c_a * (self.v**2)
+        R_x = self.c_r1 * self.v
+        F_g = self.m * self.g * np.sin(alpha)
+
+        F_load = F_areo + R_x + F_g
+
+        self.w_e_dot = (T_e - self.GR * self.r_e * F_load) / self.J_e
+
+        W_w = self.GR * self.w_e
+        S = (W_w * self.r_e - self.v) / self.v
+
+        if S < 1:# and S > -1 :
+            F_x = self.c * S
+        else :
+            F_x = self.F_max
+
+        self.w_e += self.w_e_dot * self.sample_time
+        self.a = (F_x - F_load) / self.m
+        self.v += self.a * self.sample_time
+        self.x += (self.v * self.sample_time) - (0.5 * self.a * self.sample_time**2)
