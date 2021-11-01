@@ -49,5 +49,5 @@ for i in range(t_data.shape[0]):
 
 # Plot x vs t for visualization
 plt.plot(t_data, x_data)
-#plt.plot(t_data, v_data)
+plt.plot(t_data, v_data)
 plt.show()
