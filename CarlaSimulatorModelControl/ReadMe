@@ -1,0 +1,5 @@
+1. To use this code, you must install Carla simulation first
+2. After installation, check control2d.py. 
+    In this file, you can check how to control the vehicle with longitude, 
+    latitude control model, throttle, break.
+3. This can be controlled in multiple methods. In my case, I have used waypoint model
