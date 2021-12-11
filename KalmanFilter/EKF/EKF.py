@@ -21,11 +21,6 @@ r = data['r']  # range measurements [m]
 l = data['l']  # x,y positions of landmarks [m]
 d = data['d']  # distance between robot center and laser rangefinder [m]
 
-
-############################################################################################
-### Initialize parameters
-############################################################################################
-
 v_var = 0.01  # translation velocity variance
 om_var = 0.01  # rotational velocity variance
 # allowed to tune these values
@@ -43,6 +38,7 @@ P_est = np.zeros([len(v), 3, 3])  # state covariance matrices
 x_est[0] = np.array([x_init, y_init, th_init]) # initial state
 P_est[0] = np.diag([1, 1, 0.1]) # initial state covariance
 
+
 # Wraps angle to (-pi,pi] range
 def wraptopi(x):
     if x > np.pi:
@@ -51,10 +47,6 @@ def wraptopi(x):
         x = x + (np.floor(x / (-2 * np.pi)) + 1) * 2 * np.pi
     return x
 
-
-############################################################################################
-### Correction
-############################################################################################
 
 def measurement_update(lk, rk, bk, P_check, x_check):
     # lk : Landmark k's coordinate
@@ -90,10 +82,6 @@ def measurement_update(lk, rk, bk, P_check, x_check):
     P_check = (np.identity(3) - K.dot(H)).dot(P_check)
 
     return x_check, P_check
-
-############################################################################################
-### Prediction
-############################################################################################
 
 #### 5. Main Filter Loop #######################################################################
 for k in range(1, len(t)):  # start at 1 because we've set the initial prediciton
@@ -151,3 +139,6 @@ ax.set_xlabel('Time [s]')
 ax.set_ylabel('theta [rad]')
 ax.set_title('Estimated trajectory')
 plt.show()
+
+#with open('submission3.pkl', 'wb') as f:
+#    pickle.dump(x_est, f, pickle.HIGHEST_PROTOCOL)
