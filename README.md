@@ -28,9 +28,23 @@ The required path is provided as the data, and we can use this in the implement 
 To make the vehicle to move as we expect, we have to understand exactly about the parameters that effect the movement of the vehicles. The modeling method can help this, and must be applied in the autonous driving system.
 
 
-# Data Input and Processing
+## Data Input and Processing
 In the self-driving car system, there must be data to recognize where the vehicle itself is located in the real world. For that operation, the car needs to have sensors (just like the human beings), and collect information of the environment. There are many types of data that can be used in the self driving car system, and in this project we will figure out about how to address with the 2 mostly used data tyoe in the industry: the 6-DOF gyro data, collected by the IMU sensor, in other words, inertia or gyro sensor, and images, collected by the Camera. In Section 2. Kalman Filter, we will discribe how to use the 6-DOF axis data, and in 3. Visual Perceptions, we will talk about image processing.
 
-# 2. Kalman Filter
+## 2. Kalman Filter
 
+### Value of Resister
+Not only in self-driving, but also in many other various fields use different types of sensors for data production. But unfortunally, the data value can not be used directly because of the uncertaincy of the sensor itself. For example, many people know the formula below, the Ohm's Rule:
 
+<p align="center">
+  <i><b>V = IR</b></i>
+</p>
+
+But actually when we measure the voltage and current between the resister several times, we will recognize that values does not show that R is always the same, which means that there is a noise value between the 'real resist' and 'expected resist'. So the fomular above can be deformed as below:
+
+<p align="center">
+  <i><b>R = V / I + a</b></i>
+</p>
+
+where **__a__** is the noise value which is usually supposed to have a standard normal distribution.
+In VoltageProblem, we implement the **least square** method to control this error, and predict the exact value that we want.
