@@ -1,3 +1,5 @@
+This repository is created based on the projects opened at the Coursera Self-driving Cars specialization course.
+
 # AutoMobility
 
 The process of self driving can be divided into 3 big parts: Data Input, Processing, Motion Output. The perpose of this github repository is to implement this process. It will be composed of 4 different parts: (1) Vehicle Modeling (2) Kalman Filter Implementation (3) Camera Image Processing (4) Motion Planning.
@@ -24,3 +26,11 @@ The required path is provided as the data, and we can use this in the implement 
 
 ### Conclusion
 To make the vehicle to move as we expect, we have to understand exactly about the parameters that effect the movement of the vehicles. The modeling method can help this, and must be applied in the autonous driving system.
+
+
+# Data Input and Processing
+In the self-driving car system, there must be data to recognize where the vehicle itself is located in the real world. For that operation, the car needs to have sensors (just like the human beings), and collect information of the environment. There are many types of data that can be used in the self driving car system, and in this project we will figure out about how to address with the 2 mostly used data tyoe in the industry: the 6-DOF gyro data, collected by the IMU sensor, in other words, inertia or gyro sensor, and images, collected by the Camera. In Section 2. Kalman Filter, we will discribe how to use the 6-DOF axis data, and in 3. Visual Perceptions, we will talk about image processing.
+
+# 2. Kalman Filter
+
+
