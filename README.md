@@ -46,5 +46,5 @@ But actually when we measure the voltage and current between the resister severa
   <i><b>R = V / I + a</b></i>
 </p>
 
-where **__a__** is the noise value which is usually supposed to have a standard normal distribution.
-In VoltageProblem, we implement the **least square** method to control this error, and predict the exact value that we want.
+where **_a_** is the noise value which is usually supposed to have a standard normal distribution.
+In VoltageProblem.py, we implement the **least square** method to control this error, and predict the exact value that we want.
