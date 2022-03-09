@@ -12,7 +12,7 @@ To analyze the vehicle's movement, we need to model the vehicle and figure out w
 ### Kinematic Modeling
 Kinematic Modeling is used especially at low speeds when the accelerations are not significant to capture the motion of a vehicle. In most cases, it is sufficient to look only at kinamic models of vehicles. One of the most famous model is the bicycle model, which is implemented in the code. Using the bicycle model, we can make the bicycle to move in the direction as we want by controling the steering angle speed (the vehicle speed is fixed, hence it is used when accelerations are not signifcant). The result can show like this:
 
-![그림1](https://user-images.githubusercontent.com/22390526/157134127-92de62be-0707-4eee-8ad2-487ded588a7e.png)
+![157134127-92de62be-0707-4eee-8ad2-487ded588a7e](https://user-images.githubusercontent.com/22390526/157372846-91571988-9828-4137-a883-546c8a2a2392.png)
 
 ### Dynamic Modeling
 When we need to include knowledge of the forces and moments acting on the vehicle, we're performing Dynamic Modeling. In this model, we have to control the throttle and break of the vehicle to make the vehicle to move in the required speed on the road. You can check the implemention of the vehicle speed on the code.
@@ -56,21 +56,19 @@ The first method is using the vehicle modeling technique, similar to what we hav
 The second one is using sensor data, such as GPS, Lidar, etc. It seems to be more easy than modeling the entire world (the first method), but as mentioned at <Value of Resister> section, sensors do not show the 'exact' value because of the noise, and this phenomenon equally happens to location problem. Another problem of using sensor data in localiztion problem is that the data is in serial, which means that it is a different problem mentioned in the voltage problem which gives all the measured data at once. In localizing, the data accumulates in every period, making the least square error useless (before deforming).
   
 Kalman filter can be called as the hybrid method of these 2. Kalman filter first predicts the location using the vehicle motion model as the first method, and then corrects the predicted location by the measurement model addressed in the second method. The code implemented in this section notes about the estimation of the vehicle trajectory using the EKF (Extended Kalman Filter) which is an extended version of Kalman filter used when the data is non linear. The ground truth data shows the trajectory as below :
-  
-![스크린샷, 2022-03-09 10-26-44](https://user-images.githubusercontent.com/22390526/157354401-1cc4f95d-731e-40c7-b79d-8f302158c89d.png)
+
+<img width="1213" alt="Estimated_Trajectory" src="https://user-images.githubusercontent.com/22390526/157354401-1cc4f95d-731e-40c7-b79d-8f302158c89d.png">
 
 The mission of this code is to estimate the trajectory as closed as possible to the ground truth data, using the starting point, LIDAR sensor data, linear and angular velocity odometry data. We need to use linear and angular velocity odometry value in the motion model, and the LIDAR sensor data in the measurment model. The results are showm below :
 
-![스크린샷, 2022-03-09 10-37-16](https://user-images.githubusercontent.com/22390526/157355429-51ea4066-7ed6-4250-aaf0-381d0765bcde.png)
-![스크린샷, 2022-03-09 10-37-35](https://user-images.githubusercontent.com/22390526/157355433-5257cb53-1715-4e0c-8e70-38a4b6ae890c.png)  
+<img width="1213" alt="Estimated_Trajectory" src="https://user-images.githubusercontent.com/22390526/157380616-71b8d1af-c8f2-4701-8b35-b4915a57c381.png">
+  
 ### Sensor Calibration
 Using only 1 LIDAR camera can be dangerous due to the sensor malfunction, noise, etc. The solution of this problem is quite simple : use more than 1 LIDAR camera. We can also think that we can collect different types of sensors for more accurate results by processing various types of data. This operation is called sensor calibration.
 
 In this section, we will simulate the calibration of 3 different types of sensors LIDAR, GNSS and IMU using the Error State Extended Kalman Filter (ES-EKF). The mission is the same as the above ekf implement and there will be different three tests. The results are shown below :
-  
-![스크린샷, 2022-03-09 11-25-50](https://user-images.githubusercontent.com/22390526/157361037-1269d2ca-2d66-4360-a678-e6458f97cac5.png)
-![스크린샷, 2022-03-09 11-27-11](https://user-images.githubusercontent.com/22390526/157361044-12c5bd79-4009-4483-ad0e-7c5eaac9b059.png)
-![스크린샷, 2022-03-09 11-28-09](https://user-images.githubusercontent.com/22390526/157361051-420db4c7-feb9-4aa1-9770-859b212e18a0.png)
+
+<img width="1812" alt="ESEKF_Results" src="https://user-images.githubusercontent.com/22390526/157381429-0f6b4af5-6249-47a7-8a94-cebd6136aed8.png">
 
 The first figure shows the estimated trajectory figured out by es-ekf when all the sensors are operating normally. The second figures shows when the LIDAR camera is supposed to be slightly declined compared to the ordinary state and rectified by changing the covariance of the LIDAR sensor and IMU sensor noise. The third figure is the result of the test when all external positioning information (from GPS and LIDAR) is lost for a short period of time. 
   
