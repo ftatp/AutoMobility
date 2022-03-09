@@ -1,5 +1,3 @@
-This repository is created based on the projects opened at the Coursera Self-driving Cars specialization course, published by Toronto University. https://www.coursera.org/specializations/self-driving-cars
-
 # AutoMobility
 
 The process of self driving can be divided into 3 big parts: Data Input, Processing, Motion Planning. The perpose of this github repository is to implement this process. It will be composed of 4 different parts: (1) Vehicle Modeling (2) Kalman Filter Implementation (3) Camera Image Processing (4) Motion Planning.
