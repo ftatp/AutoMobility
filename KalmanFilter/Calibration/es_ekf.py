@@ -14,7 +14,7 @@ from rotations import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, 
 # This is where you will load the data from the pickle files. For parts 1 and 2, you will use
 # p1_data.pkl. For Part 3, you will use pt3_data.pkl.
 ################################################################################################
-with open('data/pt3_data.pkl', 'rb') as file:
+with open('data/pt1_data.pkl', 'rb') as file:
     data = pickle.load(file)
 
 ################################################################################################
@@ -96,9 +96,11 @@ lidar.data = (C_li @ lidar.data.T).T + t_i_li
 # most important aspects of a filter is setting the estimated sensor variances correctly.
 # We set the values here.
 ################################################################################################
-var_imu_f = 0.10
-var_imu_w = 0.001
+var_imu_f = 0.10 
+#var_imu_w = 0.25
+var_imu_w = 0.001 
 var_gnss  = 0.01
+#var_lidar = 1.00
 var_lidar = 100
 
 ################################################################################################
@@ -296,10 +298,10 @@ plt.show()
 #    file.write(p2_str)
 #
 # Pt. 3 submission
-p3_indices = [6800, 7600, 8400, 9200, 10000]
-p3_str = ''
-for val in p3_indices:
-    for i in range(3):
-        p3_str += '%.3f ' % (p_est[val, i])
-with open('pt3_submission.txt', 'w') as file:
-    file.write(p3_str)
+#p3_indices = [6800, 7600, 8400, 9200, 10000]
+#p3_str = ''
+#for val in p3_indices:
+#    for i in range(3):
+#        p3_str += '%.3f ' % (p_est[val, i])
+#with open('pt3_submission.txt', 'w') as file:
+#    file.write(p3_str)
