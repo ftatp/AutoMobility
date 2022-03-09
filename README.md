@@ -1,8 +1,8 @@
-This repository is created based on the projects opened at the Coursera Self-driving Cars specialization course.
+This repository is created based on the projects opened at the Coursera Self-driving Cars specialization course, published by Toronto University. https://www.coursera.org/specializations/self-driving-cars
 
 # AutoMobility
 
-The process of self driving can be divided into 3 big parts: Data Input, Processing, Motion Output. The perpose of this github repository is to implement this process. It will be composed of 4 different parts: (1) Vehicle Modeling (2) Kalman Filter Implementation (3) Camera Image Processing (4) Motion Planning.
+The process of self driving can be divided into 3 big parts: Data Input, Processing, Motion Planning. The perpose of this github repository is to implement this process. It will be composed of 4 different parts: (1) Vehicle Modeling (2) Kalman Filter Implementation (3) Camera Image Processing (4) Motion Planning.
 
 
 ## 1. Vehicle Modeling
@@ -15,7 +15,7 @@ Kinematic Modeling is used especially at low speeds when the accelerations are n
 ![그림1](https://user-images.githubusercontent.com/22390526/157134127-92de62be-0707-4eee-8ad2-487ded588a7e.png)
 
 ### Dynamic Modeling
-When we need to include knowledge of the forces and moments acting on the vehicle, we're performing Dynamic Modeling. In this model, we have to control the throttle and break of the vehicle to make the vehicle to move in the required speed on the road. You can check the implemention of the vehicle speed on the code
+When we need to include knowledge of the forces and moments acting on the vehicle, we're performing Dynamic Modeling. In this model, we have to control the throttle and break of the vehicle to make the vehicle to move in the required speed on the road. You can check the implemention of the vehicle speed on the code.
 
 ### Model Mixing
 Using the above 2 models, we can control the vehicle to run on the required trajectory, as ypu can imagine the the car have a steering wheel, an accelerator (throttle), and break. The final implementation of the vehicle modeling is about making a 3d simualator using the CARLA Unreal game engine.
@@ -29,7 +29,7 @@ To make the vehicle to move as we expect, we have to understand exactly about th
 
 
 ## Data Input and Processing
-In the self-driving car system, there must be data to recognize where the vehicle itself is located in the real world. For that operation, the car needs to have sensors (just like the human beings), and collect information of the environment. There are many types of data that can be used in the self driving car system, and in this project we will figure out about how to address with the 2 mostly used data tyoe in the industry: the 6-DOF gyro data, collected by the IMU sensor, in other words, inertia or gyro sensor, and images, collected by the Camera. In Section 2. Kalman Filter, we will discribe how to use the 6-DOF axis data, and in 3. Visual Perceptions, we will talk about image processing.
+In the self-driving car system, there must be data to recognize where the vehicle itself is located in the real world, or detect obstacles that the vehicle must avoid, etc. For these operations, the car needs to have sensors (just like the human beings), and collect information of the environment. There are many types of data that can be used in the self driving car system, and in this project we will figure out about how to address with the 2 mostly used data tyoe in the industry: the LIDAR sensor data, and images collected by the Camera. In Section 2. Kalman Filter, we will discribe how to use the LIDAR sensor data, and in 3. Visual Perceptions, we will talk about image processing.
 
 ## 2. Kalman Filter
 
@@ -47,4 +47,23 @@ But actually when we measure the voltage and current between the resister severa
 </p>
 
 where **_a_** is the noise value which is usually supposed to have a standard normal distribution.
-In VoltageProblem.py, we implement the **least square** method to control this error, and predict the exact value that we want.
+In VoltageProblem.py, we implement the **least square error** method to control this error, and predict the exact value that we want.
+
+### Extended Kalman Filter
+The self driving car needs to know where itself is in the world space, and we can think 2 different solutions to tackle this problem. 
+
+  The first method is using the vehicle modeling technique. Using the value of the accelation and steering wheel angle, we can _predict_ where the vehicle positions in the world time by time. But the problem of this method is that it is only the predicted location, which means it can be correct only when the acceleration and steering wheel can effect the vehicle, but in real world there can be hundreds of other types of forces, such as the land slope, wind, or even an earthquake, etc, and these make the predicted location to be wrong. To cover this by modeling, we need to model not only the vehicle itself, but also the entire world which have enormous variety of forces, that seems to be clearly impossible.
+
+  The second one is using sensor data, such as GPS, Lidar, etc. It seems to be more easy than modeling the entire world (the first method), but as mentioned at <Value of Resister> section, sensors do not show the 'exact' value because of the noise, and this phenomenon equally happens to location problem. Another problem of using sensor data in localiztion problem is that the data is in serial, which means that it is a different problem mentioned in the voltage problem which gives all the measured data at once. In localizing, the data accumulates in every period, making the least square error useless (before deforming).
+  
+  Kalman filter can be called as the hybrid method of these 2. Kalman filter first predicts the location using the vehicle motion model as the first method, and then corrects the predicted location by the measurement model addressed in the second method. In this section we will hang around the mathematics of the Kalman Filter, and extend it to non-linear data which is called the Extended Kalman Filter (EKF) and apply it in the localization problem.
+  
+  The code implemented in this section notes about the EKF in the estimation of the vehicle trajectory. The ground truth data shows the trajectory as below :
+  
+![스크린샷, 2022-03-09 10-26-44](https://user-images.githubusercontent.com/22390526/157354401-1cc4f95d-731e-40c7-b79d-8f302158c89d.png)
+
+The mission of this code is to estimate the trajectory as closed as possible to the ground truth data, using the starting point, LIDAR sensor data, linear and angular velocity odometry data. We need to use linear and angular velocity odometry value in the motion model, and the LIDAR sensor data in the measurment model. The results are showm below :
+
+![스크린샷, 2022-03-09 10-37-16](https://user-images.githubusercontent.com/22390526/157355429-51ea4066-7ed6-4250-aaf0-381d0765bcde.png)
+![스크린샷, 2022-03-09 10-37-35](https://user-images.githubusercontent.com/22390526/157355433-5257cb53-1715-4e0c-8e70-38a4b6ae890c.png)  
+### Sensor Calibration
