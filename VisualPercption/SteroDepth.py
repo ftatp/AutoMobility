@@ -129,3 +129,73 @@ depth_map_left = calc_depth_map(disp_left, k_left, t_left, t_right)
 #plt.figure(figsize=(8, 8), dpi=100)
 #plt.imshow(depth_map_left, cmap='flag')
 #plt.show()
+
+obstacle_image = files_management.get_obstacle_image()
+
+# Show the obstacle image
+#plt.figure(figsize=(4, 4))
+#plt.imshow(obstacle_image)
+#plt.show()
+
+def locate_obstacle_in_image(image, obstacle_image):
+
+    ### START CODE HERE ###
+
+    # Run the template matching from OpenCV
+    cross_corr_map = cv2.matchTemplate(image, obstacle_image, method=cv2.TM_CCOEFF)
+
+    # Locate the position of the obstacle using the minMaxLoc function from OpenCV
+    _, _, _, obstacle_location = cv2.minMaxLoc(cross_corr_map)
+
+    ### END CODE HERE ###
+
+    return cross_corr_map, obstacle_location
+
+# Gather the cross correlation map and the obstacle location in the image
+cross_corr_map, obstacle_location = locate_obstacle_in_image(img_left, obstacle_image)
+
+# Display the cross correlation heatmap
+plt.figure(figsize=(10, 10))
+plt.imshow(cross_corr_map)
+plt.show()
+
+# Print the obstacle location
+print("obstacle_location \n", obstacle_location)
+
+def calculate_nearest_point(depth_map, obstacle_location, obstacle_img):
+
+    ### START CODE HERE ###
+
+    # Gather the relative parameters of the obstacle box
+    obstacle_width = obstacle_img.shape[0]
+    obstacle_height = obstacle_img.shape[1]
+
+    obstacle_min_x_pos = obstacle_location[1]
+    obstacle_max_x_pos = obstacle_location[1] + obstacle_width
+
+    obstacle_min_y_pos = obstacle_location[0]
+    obstacle_max_y_pos = obstacle_location[0] + obstacle_height
+
+    # Get the depth of the pixels within the bounds of the obstacle image, find the closest point in this rectangle
+    obstacle_depth = depth_map_left[obstacle_min_x_pos:obstacle_max_x_pos, obstacle_min_y_pos:obstacle_max_y_pos]
+    closest_point_depth = obstacle_depth.min()
+
+    ### END CODE HERE ###
+
+    # Create the obstacle bounding box
+    obstacle_bbox = patches.Rectangle((obstacle_min_y_pos, obstacle_min_x_pos), obstacle_height, obstacle_width,
+                                 linewidth=1, edgecolor='r', facecolor='none')
+
+    return closest_point_depth, obstacle_bbox
+
+# Use the developed nearest point function to get the closest point depth and obstacle bounding box
+closest_point_depth, obstacle_bbox = calculate_nearest_point(depth_map_left, obstacle_location, obstacle_image)
+
+# Display the image with the bounding box displayed
+fig, ax = plt.subplots(1, figsize=(10, 10))
+ax.imshow(img_left)
+ax.add_patch(obstacle_bbox)
+plt.show()
+
+# Print the depth of the nearest point
+print("closest_point_depth {0:0.3f}".format(closest_point_depth))
