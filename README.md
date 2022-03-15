@@ -78,5 +78,4 @@ In this section we learned about how the vehicle can estimate itself state (posi
 Camera is a fruitful source of data that can be used in various ways. In this section, we will talk about (1) how to detect a target object on road using stereo camera, (2) localization using continuous scenes from camera (3) environment perception.
   
 ### Stereo Depth
-  
-### Stereo Depth
+Using 2 cameras arranged on the same epipoly line (just like the human eyes), we can calculate how far the appeared objects on the lens are from the cameras which is called depth. In addition, using the cross correlation method, we can detect obstacles on the road and prevent collisions by prevision of the depth value. In this section, we will first construct the disparity map, and then use this to calculate the depth map, and finally detect the distance from the vehicle to the objects using cross correlation and the depth map.
