@@ -98,3 +98,34 @@ print("\nt_left \n", t_left)
 print("\nk_right \n", k_right)
 print("\nr_right \n", r_right)
 print("\nt_right \n", t_right)
+
+def calc_depth_map(disp_left, k_left, t_left, t_right):
+
+    ### START CODE HERE ###
+    # Get the focal length from the K matrix
+    f = k_left[0, 0]
+
+    # Get the distance between the cameras from the t matrices (baseline)
+    b = t_left[1] - t_right[1]
+
+    # Replace all instances of 0 and -1 disparity with a small minimum value (to avoid div by 0 or negatives)
+    disp_left[disp_left == 0] = 0.1
+    disp_left[disp_left == -1] = 0.1
+
+    # Initialize the depth map to match the size of the disparity map
+    depth_map = np.ones(disp_left.shape)
+
+    # Calculate the depths
+    depth_map[:] = f * b / disp_left[:]
+
+
+    ### END CODE HERE ###
+
+    return depth_map
+
+depth_map_left = calc_depth_map(disp_left, k_left, t_left, t_right)
+
+# Display the depth map
+#plt.figure(figsize=(8, 8), dpi=100)
+#plt.imshow(depth_map_left, cmap='flag')
+#plt.show()
