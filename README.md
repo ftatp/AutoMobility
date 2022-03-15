@@ -72,3 +72,11 @@ The first figure shows the estimated trajectory figured out by es-ekf when all t
   
 ### Conclusion
 In this section we learned about how the vehicle can estimate itself state (position). Now the estimated position is ready, and this will be used in the motion planning stage.
+
+## 3. Visual Perception
+
+Camera is a fruitful source of data that can be used in various ways. In this section, we will talk about (1) how to detect a target object on road using stereo camera, (2) localization using continuous scenes from camera (3) environment perception.
+  
+### Stereo Depth
+  
+### Stereo Depth
