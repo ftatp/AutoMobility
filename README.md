@@ -82,9 +82,8 @@ Using 2 cameras arranged on the same epipoly line (just like the human eyes), we
 In the depository, there will be given two images, one is the left side camera's picture, and the other is the right side's. Using these images, we will first construct the disparity map and then develop it into the depth map.
 ![left side](https://user-images.githubusercontent.com/22390526/158600635-78c681fe-9d92-4263-ba16-35ba51c9cef1.png)
 
-![download](https://user-images.githubusercontent.com/22390526/158600065-9d89c4f4-01c6-41f7-a366-6e20febed6bc.png)
-![depthmap](https://user-images.githubusercontent.com/22390526/158600129-92560319-adb8-4d65-86a1-000d4a0db3bd.png)
-
+<img width="1215" alt="depthmap" src="https://user-images.githubusercontent.com/22390526/158604642-d5d1c269-4355-497c-9e7e-71c523ac5e8c.png">
+  
 Finally, we can detect the distance from the vehicle to the objects using cross correlation and the depth map. In this example, we will to detect the motorcycle and how much far it is from the driver. The results are shown below.
   
 ![detectobject](https://user-images.githubusercontent.com/22390526/158600452-b1c615f3-e27e-4a53-9570-cec91522222e.png)
