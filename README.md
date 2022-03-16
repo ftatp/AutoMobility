@@ -77,4 +77,20 @@ In this section we learned about how the vehicle can estimate itself state (posi
 Camera is a fruitful source of data that can be used in various ways. In this section, we will talk about (1) how to detect a target object on road using stereo camera, (2) localization using continuous scenes from camera (3) environment perception.
   
 ### Stereo Depth
-Using 2 cameras arranged on the same epipoly line (just like the human eyes), we can calculate how far the appeared objects on the lens are from the cameras which is called depth. In addition, using the cross correlation method, we can detect obstacles on the road and prevent collisions by prevision of the depth value. In this section, we will first construct the disparity map, and then use this to calculate the depth map, and finally detect the distance from the vehicle to the objects using cross correlation and the depth map.
+Using 2 cameras arranged on the same epipoly line (just like the human eyes), we can calculate how far the appeared objects on the lens are from the cameras which is called depth. In addition, using the cross correlation method, we can detect obstacles on the road and prevent collisions by prevision of the depth value.
+  
+In the depository, there will be given two images, one is the left side camera's picture, and the other is the right side's. Using these images, we will first construct the disparity map and then develop it into the depth map.
+![left side](https://user-images.githubusercontent.com/22390526/158600635-78c681fe-9d92-4263-ba16-35ba51c9cef1.png)
+
+![download](https://user-images.githubusercontent.com/22390526/158600065-9d89c4f4-01c6-41f7-a366-6e20febed6bc.png)
+![depthmap](https://user-images.githubusercontent.com/22390526/158600129-92560319-adb8-4d65-86a1-000d4a0db3bd.png)
+
+Finally, we can detect the distance from the vehicle to the objects using cross correlation and the depth map. In this example, we will to detect the motorcycle and how much far it is from the driver. The results are shown below.
+  
+![detectobject](https://user-images.githubusercontent.com/22390526/158600452-b1c615f3-e27e-4a53-9570-cec91522222e.png)
+
+The twinkling point in the picture is the discription where the detected object locates in the image.
+  
+### Localization using camera
+  
+
