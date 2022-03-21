@@ -221,3 +221,78 @@ if filtering:
     filtered_match_list = filter_match_list_by_distance(match_list, dist_threshold)
 
 image_matches = visualize_matches(query_image, query_kp_list, train_image, train_kp_list, filtered_match_list[:n])
+
+def match_features_dataset(des_lists, match_features):
+    """
+    Match features for each subsequent image pair in the dataset
+
+    Arguments:
+    des_list -- a list of descriptors for each image in the dataset
+    match_features -- a function which maches features between a pair of images
+
+    Returns:
+    matches -- list of matches for each subsequent image pair in the dataset.
+               Each matches[i] is a list of matched features from images i and i + 1
+
+    """
+    match_lists = []
+
+    ### START CODE HERE ###
+    for i in range(len(des_lists) - 1):
+        match_lists.append(match_features(des_lists[i], des_lists[i+1]))
+
+    ### END CODE HERE ###
+
+    return match_lists
+
+match_lists = match_features_dataset(des_lists, match_features)
+
+i = 0
+print("Number of features matched in frames {0} and {1}: {2}".format(i, i+1, len(match_lists[i])))
+
+
+# Optional
+def filter_matches_dataset(filter_match_list_by_distance, match_lists, dist_threshold):
+    """
+    Filter matched features by distance for each subsequent image pair in the dataset
+
+    Arguments:
+    filter_matches_distance -- a function which filters matched features from two images by distance between the best matches
+    matches -- list of matches for each subsequent image pair in the dataset.
+               Each matches[i] is a list of matched features from images i and i + 1
+    dist_threshold -- maximum allowed relative distance between the best matches, (0.0, 1.0)
+
+    Returns:
+    filtered_matches -- list of good matches for each subsequent image pair in the dataset.
+                        Each matches[i] is a list of good matches, satisfying the distance threshold
+
+    """
+    filtered_match_lists = []
+
+    ### START CODE HERE ###
+    for match_list in match_lists:
+        filtered_match_list = filter_match_list_by_distance(match_list, dist_threshold)
+        filtered_match_lists.append(filtered_match_list)
+
+    ### END CODE HERE ###
+
+    return filtered_match_lists
+
+# Optional
+dist_threshold = 0.6
+
+filtered_match_lists = filter_matches_dataset(filter_match_list_by_distance, match_lists, dist_threshold)
+
+# if len(filtered_matches) > 0:
+    
+#     # Make sure that this variable is set to True if you want to use filtered matches further in your assignment
+#     is_main_filtered_m = True
+#     if is_main_filtered_m: 
+#         match_lists = filtered_match_lists
+
+#     i = 0
+#     print("Number of filtered matches in frames {0} and {1}: {2}".format(i, i+1, len(filtered_match_lists[i])))
+
+print("Number of matches in frames {0} and {1}: {2}".format(i, i+1, len(match_lists[i])))
+print("Number of filtered matches in frames {0} and {1}: {2}".format(i, i+1, len(filtered_match_lists[i])))
+
