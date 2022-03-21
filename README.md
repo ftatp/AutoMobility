@@ -18,8 +18,11 @@ When we need to include knowledge of the forces and moments acting on the vehicl
 Using the above 2 models, we can control the vehicle to run on the required trajectory, as ypu can imagine the the car have a steering wheel, an accelerator (throttle), and break. The final implementation of the vehicle modeling is about making a 3d simualator using the CARLA Unreal game engine.
 
 The required path is provided as the data, and we can use this in the implement of pure pursuit or stanley method. Check the result of the development in the following video :
-
-[![Screenshot from 2022-03-07 22-52-33](https://user-images.githubusercontent.com/22390526/157047285-27cb3363-66de-4710-88de-6cb21da6ae81.png)](https://youtu.be/31MsmHTRn6E)
+<p align="center">
+  <a href="https://youtu.be/31MsmHTRn6E">  
+   <img src="https://user-images.githubusercontent.com/22390526/157047285-27cb3363-66de-4710-88de-6cb21da6ae81.png" alt="drawing" width="200"/>
+  </a>
+</p>
 
 ### Conclusion
 To make the vehicle to move as we expect, we have to understand exactly about the parameters that effect the movement of the vehicles. The modeling method can help this, and must be applied in the autonous driving system.
@@ -86,10 +89,22 @@ In the depository, there will be given two images, one is the left side camera's
   
 Finally, we can detect the distance from the vehicle to the objects using cross correlation and the depth map. In this example, we will to detect the motorcycle and how much far it is from the driver. The results are shown below.
   
-![detectobject](https://user-images.githubusercontent.com/22390526/158600452-b1c615f3-e27e-4a53-9570-cec91522222e.png)
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/22390526/158600452-b1c615f3-e27e-4a53-9570-cec91522222e.png" alt="drawing" width="560"/>
 
 The twinkling point in the picture is the discription where the detected object locates in the image.
   
 ### Localization using camera
   
+Using the depth maps of each frame, we can track the maneuver of the vehicle. To do this we will first detect the feature points of frame i and frame i+1 and match the features by pairing the same feature points.
+![다운로드](https://user-images.githubusercontent.com/22390526/159379257-a0b4cd40-f047-4ed2-bf51-aa2e056107f0.png)
+  
+Using the matches and the depth maps of frame i an i+1 , we can estimate how mush far the vehicle moved, how much fast the vehicle have rotated. 
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/22390526/159379761-4405a2ec-b172-43ab-9094-5c13db17d9e9.png" alt="drawing" width="560"/>
+</p>
 
+When we apply this into all available frames, we can approximate to the real trajectory of the vehicle.
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/22390526/159380968-93c6618e-54bc-4103-94c9-ca110b164ae8.png" alt="drawing" width="560"/>
+</p>
