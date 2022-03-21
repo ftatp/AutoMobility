@@ -20,7 +20,7 @@ Using the above 2 models, we can control the vehicle to run on the required traj
 The required path is provided as the data, and we can use this in the implement of pure pursuit or stanley method. Check the result of the development in the following video :
 <p align="center">
   <a href="https://youtu.be/31MsmHTRn6E">  
-   <img src="https://user-images.githubusercontent.com/22390526/157047285-27cb3363-66de-4710-88de-6cb21da6ae81.png" alt="drawing" width="200"/>
+   <img src="https://user-images.githubusercontent.com/22390526/157047285-27cb3363-66de-4710-88de-6cb21da6ae81.png" alt="drawing" width="560"/>
   </a>
 </p>
 
