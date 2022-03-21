@@ -2,7 +2,6 @@
 
 The process of self driving can be divided into 3 big parts: Data Input, Processing, Motion Planning. The perpose of this github repository is to implement this process. It will be composed of 4 different parts: (1) Vehicle Modeling (2) Kalman Filter Implementation (3) Camera Image Processing (4) Motion Planning.
 
-
 ## 1. Vehicle Modeling
 
 To analyze the vehicle's movement, we need to model the vehicle and figure out what kind of factors effect the vehicle in which kind of result. The vehicle modeling can by divided in 2 different aspects: Kinematic Modeling and Dynamic Modeling.
@@ -72,3 +71,25 @@ The first figure shows the estimated trajectory figured out by es-ekf when all t
   
 ### Conclusion
 In this section we learned about how the vehicle can estimate itself state (position). Now the estimated position is ready, and this will be used in the motion planning stage.
+
+## 3. Visual Perception
+
+Camera is a fruitful source of data that can be used in various ways. In this section, we will talk about (1) how to detect a target object on road using stereo camera, (2) localization using continuous scenes from camera (3) environment perception.
+  
+### Stereo Depth
+Using 2 cameras arranged on the same epipoly line (just like the human eyes), we can calculate how far the appeared objects on the lens are from the cameras which is called depth. In addition, using the cross correlation method, we can detect obstacles on the road and prevent collisions by prevision of the depth value.
+  
+In the depository, there will be given two images, one is the left side camera's picture, and the other is the right side's. Using these images, we will first construct the disparity map and then develop it into the depth map.
+![left side](https://user-images.githubusercontent.com/22390526/158600635-78c681fe-9d92-4263-ba16-35ba51c9cef1.png)
+
+<img width="1215" alt="depthmap" src="https://user-images.githubusercontent.com/22390526/158604642-d5d1c269-4355-497c-9e7e-71c523ac5e8c.png">
+  
+Finally, we can detect the distance from the vehicle to the objects using cross correlation and the depth map. In this example, we will to detect the motorcycle and how much far it is from the driver. The results are shown below.
+  
+![detectobject](https://user-images.githubusercontent.com/22390526/158600452-b1c615f3-e27e-4a53-9570-cec91522222e.png)
+
+The twinkling point in the picture is the discription where the detected object locates in the image.
+  
+### Localization using camera
+  
+
