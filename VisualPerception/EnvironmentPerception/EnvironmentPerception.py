@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 from matplotlib import pyplot as plt
 from m6bk import *
+import math
 
 np.random.seed(1)
 np.set_printoptions(suppress=True)
@@ -188,4 +189,249 @@ dataset_handler.plot_free_space(ground_mask)
 ### Lane Estimation Using The Semantic Segmentation Output        ###
 #####################################################################
 
+# Get road mask by choosing pixels in segmentation output with value 7
+line_mask = np.zeros(segmentation.shape).astype(np.uint8)
+line_mask[segmentation == 6] = 1
+line_mask[segmentation == 8] = 1
+# Show road mask
+#plt.imshow(line_mask)
+# line_mask_gray = cv2.cvtColor(line_mask, cv2.COLOR_BGR2GRAY)
+# line_mask_blur = cv.blur(line_mask_gray, (3, 3))
 
+edge_detected = cv2.Canny(line_mask, 0, 0, 3)
+lines = cv2.HoughLinesP(edge_detected, 1, np.pi / 180, 100)#,0,0)
+print(lines.shape)
+#print(lines)
+lines.reshape((-1, 4))
+#plt.imshow(line_detected)
+
+# # Get x,y, and z coordinates of pixels in road mask
+# x_ground = x[road_mask == 1]
+# y_ground = y[road_mask == 1]
+# z_ground = dataset_handler.depth[road_mask == 1]
+# xyz_ground = np.stack((x_ground, y_ground, z_ground))
+
+def estimate_lane_lines(segmentation_output):
+    """
+    Estimates lines belonging to lane boundaries. Multiple lines could correspond to a single lane.
+
+    Arguments:
+    segmentation_output -- tensor of dimension (H,W), containing semantic segmentation neural network output
+    minLineLength -- Scalar, the minimum line length
+    maxLineGap -- Scalar, dimension (Nx1), containing the z coordinates of the points
+
+    Returns:
+    lines -- tensor of dimension (N, 4) containing lines in the form of [x_1, y_1, x_2, y_2], where [x_1,y_1] and [x_2,y_2] are
+    the coordinates of two points on the line in the (u,v) image coordinate frame.
+    """
+    ### START CODE HERE ### (≈ 7 lines in total)
+    # Step 1: Create an image with pixels belonging to lane boundary categories from the output of semantic segmentation
+    line_mask = np.zeros(segmentation.shape).astype(np.uint8)
+    line_mask[segmentation == 6] = 255
+    line_mask[segmentation == 8] = 255
+
+    # line_mask_gray = cv2.cvtColor(line_mask, cv2.COLOR_BGR2GRAY)
+    # line_mask_blur = cv.blur(line_mask_gray, (3, 3))
+
+    edge_detected = cv2.Canny(line_mask, 100, 150)
+
+    # Step 3: Perform Line estimation using cv2.HoughLinesP()
+    lines = cv2.HoughLinesP(edge_detected, 10, np.pi / 180, 150, minLineLength=50, maxLineGap=150)
+    #lines = cv2.HoughLinesP(edges, rho=10, theta=np.pi/180, threshold=200, minLineLength=150, maxLineGap=50)
+    lines = lines.reshape((-1, 4))
+    # Note: Make sure dimensions of returned lines is (N x 4)
+    ### END CODE HERE ###
+
+    return lines
+
+def merge_lane_lines(lines):
+    """
+    Merges lane lines to output a single line per lane, using the slope and intercept as similarity measures.
+    Also, filters horizontal lane lines based on a minimum slope threshold.
+
+    Arguments:
+    lines -- tensor of dimension (N, 4) containing lines in the form of [x_1, y_1, x_2, y_2],
+    the coordinates of two points on the line.
+
+    Returns:
+    merged_lines -- tensor of dimension (N, 4) containing lines in the form of [x_1, y_1, x_2, y_2],
+    the coordinates of two points on the line.
+    """
+    
+    ### START CODE HERE ### (≈ 25 lines in total)
+    
+    # Step 0: Define thresholds
+    slope_similarity_threshold = 0.1
+    intercept_similarity_threshold = 40
+    min_slope_threshold = 0.3
+    
+    # Step 1: Get slope and intercept of lines
+    slopes, intercepts = get_slope_intecept(lines)
+    
+    # Step 2: Determine lines with slope less than horizontal slope threshold.
+    indice_where_slope_is_bigger_than_thres = np.where(abs(slopes) > min_slope_threshold)
+    filtered_lines = lines[indice_where_slope_is_bigger_than_thres]
+    slopes = slopes[indice_where_slope_is_bigger_than_thres]
+    intercepts = intercepts[indice_where_slope_is_bigger_than_thres]
+    #print(slopes.shape)
+    # Step 3: Iterate over all remaining slopes and intercepts and cluster lines that are close to each other using a slope and intercept threshold.
+    groups = [] #List of groups (dictionary) that have fields average_slope, average_intercept, list of lines
+    
+    line_id = 0
+    for slope, intercept in zip(slopes, intercepts):
+        is_included_in_group = False
+        for i in range(len(groups)):
+            if abs(slope - groups[i]['average_slope']) < 0.1 and abs(intercept - groups[i]['average_intercept']):
+                groups[i]['list_of_line_id'].append(line_id)
+                groups[i]['average_slope'] = sum(slopes[groups[i]['list_of_line_id']]) / len(slopes[groups[i]['list_of_line_id']])
+                groups[i]['average_intercept'] = sum(intercepts[groups[i]['list_of_line_id']]) / len(intercepts[groups[i]['list_of_line_id']])
+                is_included_in_group = True
+        
+        if not is_included_in_group:
+            group = {
+                'average_slope' : slope,
+                'average_intercept' : intercept,
+                'list_of_line_id': [line_id]
+            }
+            groups.append(group)
+            
+        line_id += 1
+
+    #pp.pprint(groups)
+    # Step 4: Merge all lines in clusters using mean averaging
+    merged_lines = []
+    for group in groups:
+        coordinates = np.array(filtered_lines[group['list_of_line_id']]).T
+        #pp.pprint(coordinates)
+        #pp.pprint([sum(coordinates[0]), sum(coordinates[1]), sum(coordinates[2]), sum(coordinates[3])])
+        merged_line = [i / len(group['list_of_line_id']) for i in [sum(coordinates[0]), sum(coordinates[1]), sum(coordinates[2]), sum(coordinates[3])]]
+        merged_lines.append(merged_line)
+    
+    # Note: Make sure dimensions of returned lines is (N x 4)
+    merged_lines = np.array(merged_lines)
+    ### END CODE HERE ###
+    return merged_lines
+
+lane_lines = estimate_lane_lines(segmentation)
+merged_lane_lines = merge_lane_lines(lane_lines)
+#plt.imshow(dataset_handler.vis_lanes(lane_lines))
+#plt.imshow(dataset_handler.vis_lanes(merged_lane_lines))
+#plt.show()
+
+max_y = dataset_handler.image.shape[0]
+min_y = np.min(np.argwhere(road_mask == 1)[:, 0])
+
+extrapolated_lanes = extrapolate_lines(merged_lane_lines, max_y, min_y)
+final_lanes = find_closest_lines(extrapolated_lanes, dataset_handler.lane_midpoint)
+plt.imshow(dataset_handler.vis_lanes(final_lanes))
+plt.show()
+
+#####################################################################
+### Computing Minimum Distance                                    ###
+#####################################################################
+
+def filter_detections_by_segmentation(detections, segmentation_output):
+    """
+    Filter 2D detection output based on a semantic segmentation map.
+
+    Arguments:
+    detections -- tensor of dimension (N, 5) containing detections in the form of [Class, x_min, y_min, x_max, y_max, score].
+
+    segmentation_output -- tensor of dimension (HxW) containing pixel category labels.
+
+    Returns:
+    filtered_detections -- tensor of dimension (N, 5) containing detections in the form of [Class, x_min, y_min, x_max, y_max, score].
+
+    """
+    ### START CODE HERE ### (≈ 20 lines in total)
+
+    # Set ratio threshold:
+    ratio_threshold = 0.3  # If 1/3 of the total pixels belong to the target category, the detection is correct.
+    filtered_detections = []
+    for detection in detections:
+
+        # Step 1: Compute number of pixels belonging to the category for every detection.
+
+        x_min = int(float(detection[1]))
+        y_min = int(float(detection[2]))
+        x_max = int(float(detection[3]))
+        y_max = int(float(detection[4]))
+        object_detected_area_segmented = segmentation[y_min:y_max, x_min:x_max]
+
+        # Step 2: Devide the computed number of pixels by the area of the bounding box (total number of pixels).
+        object_detected_area_segmented_flatten = object_detected_area_segmented.ravel()
+        if detection[0] == 'Car':
+            label = 10
+        elif detection[0] == 'Pedestrian':
+            label = 4
+        ratio = float(len(object_detected_area_segmented_flatten[object_detected_area_segmented_flatten == label])) / (object_detected_area_segmented.shape[0] * object_detected_area_segmented.shape[1])
+        #print(ratio)
+        # Step 3: If the ratio is greater than a threshold keep the detection. Else, remove the detection from the list of detections.
+        if ratio > ratio_threshold:
+            filtered_detections.append(detection)
+
+    ### END CODE HERE ###
+
+    return filtered_detections
+
+
+detections = dataset_handler.object_detection
+filtered_detections = filter_detections_by_segmentation(detections, segmentation)
+
+#plt.imshow(dataset_handler.vis_object_detection(detections))
+plt.imshow(dataset_handler.vis_object_detection(filtered_detections))
+plt.show()
+
+def find_min_distance_to_detection(detections, x, y, z):
+    """
+    Filter 2D detection output based on a semantic segmentation map.
+
+    Arguments:
+    detections -- tensor of dimension (N, 5) containing detections in the form of [Class, x_min, y_min, x_max, y_max, score].
+    
+    x -- tensor of dimension (H, W) containing the x coordinates of every pixel in the camera coordinate frame.
+    y -- tensor of dimension (H, W) containing the y coordinates of every pixel in the camera coordinate frame.
+    z -- tensor of dimensions (H,W) containing the z coordinates of every pixel in the camera coordinate frame.
+    Returns:
+    min_distances -- tensor of dimension (N, 1) containing distance to impact with every object in the scene.
+
+    """
+    ### START CODE HERE ### (≈ 20 lines in total)
+    min_distances = []
+    for detection in detections:
+        # Step 1: Compute distance of every pixel in the detection bounds
+        x_min = int(float(detection[1]))
+        y_min = int(float(detection[2]))
+        x_max = int(float(detection[3]))
+        y_max = int(float(detection[4]))
+#         print(x_min, y_min, x_max, y_max)
+#         print(x.shape)
+        object_detected_area_x = x[y_min:y_max, x_min:x_max]
+        object_detected_area_y = y[y_min:y_max, x_min:x_max]
+        object_detected_area_z = z[y_min:y_max, x_min:x_max]
+    
+        min_distance = float("inf")
+        # Step 2: Find minimum distance
+        for x_, y_, z_ in zip(object_detected_area_x.ravel(), object_detected_area_y.ravel(), object_detected_area_z.ravel()):
+            distance = math.sqrt(x_**2 + y_**2 + z_**2)
+            if distance < min_distance:
+                min_distance = distance
+        min_distances.append(distance)
+    
+    ### END CODE HERE ###
+    return min_distances
+
+min_distances = find_min_distance_to_detection(filtered_detections, x, y, z)
+
+print('Minimum distance to impact is: ' + str(min_distances))
+
+font = {'family': 'serif','color': 'red','weight': 'normal','size': 12}
+
+im_out = dataset_handler.vis_object_detection(filtered_detections)
+
+for detection, min_distance in zip(filtered_detections, min_distances):
+    bounding_box = np.asfarray(detection[1:5])
+    plt.text(bounding_box[0], bounding_box[1] - 20, 'Distance to Impact:' + str(np.round(min_distance, 2)) + ' m', fontdict=font)
+
+plt.imshow(im_out)
+plt.show()
