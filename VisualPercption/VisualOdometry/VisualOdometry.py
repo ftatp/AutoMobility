@@ -19,7 +19,10 @@ dataset_handler = DatasetHandler()
 i = 0
 image = dataset_handler.images[i]
 
-### Feature extraction ############################################### 
+
+######################################################################
+###     Feature extraction                                         ###
+######################################################################
 
 def extract_features(image):
     """
@@ -67,7 +70,7 @@ def visualize_features(image, kp):
 
 
 # Optional: visualizing and experimenting with various feature descriptors
-visualize_features(dataset_handler.images_rgb[0], image0_kp_list)
+#visualize_features(dataset_handler.images_rgb[0], image0_kp_list)
 
 
 def extract_features_dataset(images, extract_features_function):
@@ -105,6 +108,10 @@ print("Coordinates of the first keypoint in frame {0}: {1}\n".format(0, str(kp_l
 # Remember that the length of the returned by dataset_handler lists should be the same as the length of the image array
 print("Length of images array: {0}".format(len(images)))
 
+
+######################################################################
+###     Feature matching                                           ###
+######################################################################
 
 def match_features(des_list1, des_list2):
     """
@@ -220,7 +227,7 @@ if filtering:
     dist_threshold = 0.6
     filtered_match_list = filter_match_list_by_distance(match_list, dist_threshold)
 
-image_matches = visualize_matches(query_image, query_kp_list, train_image, train_kp_list, filtered_match_list[:n])
+#image_matches = visualize_matches(query_image, query_kp_list, train_image, train_kp_list, filtered_match_list[:n])
 
 def match_features_dataset(des_lists, match_features):
     """
@@ -296,3 +303,189 @@ filtered_match_lists = filter_matches_dataset(filter_match_list_by_distance, mat
 print("Number of matches in frames {0} and {1}: {2}".format(i, i+1, len(match_lists[i])))
 print("Number of filtered matches in frames {0} and {1}: {2}".format(i, i+1, len(filtered_match_lists[i])))
 
+
+######################################################################
+###     Trajectory Estimation                                      ###
+######################################################################
+
+def estimate_motion(match_list, kp_list1, kp_list2, k, depth1=None):
+    """
+    Estimate camera motion from a pair of subsequent image frames
+
+    Arguments:
+    match -- list of matched features from the pair of images
+    kp1 -- list of the keypoints in the first image
+    kp2 -- list of the keypoints in the second image
+    k -- camera calibration matrix 
+    
+    Optional arguments:
+    depth1 -- a depth map of the first frame. This argument is not needed if you use Essential Matrix Decomposition
+
+    Returns:
+    rmat -- recovered 3x3 rotation numpy matrix
+    tvec -- recovered 3x1 translation numpy vector
+    image1_points -- a list of selected match coordinates in the first image. image1_points[i] = [u, v], where u and v are 
+                     coordinates of the i-th match in the image coordinate system
+    image2_points -- a list of selected match coordinates in the second image. image1_points[i] = [u, v], where u and v are 
+                     coordinates of the i-th match in the image coordinate system
+               
+    """
+    rmat = np.eye(3)
+    tvec = np.zeros((3, 1))
+    image1_points = []
+    image2_points = []
+    object_points = []
+    
+    ### START CODE HERE ###
+    for m in match_list:
+        query_idx = m.queryIdx
+        train_idx = m.trainIdx
+
+        # get first img matched keypoints
+        p1_x, p1_y = kp_list1[query_idx].pt
+    
+        ### solvePnp ###############################################################
+        #print(kp_list1[query_idx].pt)
+        depth = depth1[int(p1_y), int(p1_x)]
+        
+        if depth < 900:
+            image1_point = [int(p1_x), int(p1_y)]
+            image1_points.append(image1_point)
+    
+            World_Coord = [image1_point[0] * depth, image1_point[1] * depth,  depth]
+            Camera_coord = np.dot(np.linalg.inv(k), np.array(World_Coord))#
+            #print(Camera_coord)
+            object_points.append(Camera_coord)
+          
+            # get second img matched keypoints
+            p2_x, p2_y = kp_list2[train_idx].pt
+            image2_points.append([int(p2_x), int(p2_y)])
+       #print(kp_list2[train_idx].pt)
+    
+    _, rvec, tvec, _ = cv2.solvePnPRansac(np.float32(object_points), np.float32(image2_points), k, None, iterationsCount=10000, flags=cv2.SOLVEPNP_EPNP)
+    rmat, jac = cv2.Rodrigues(rvec)
+        
+        ### essential matrix #########################################################
+    
+#         p2_x, p2_y = kp_list2[train_idx].pt
+#         image2_points.append([int(p2_x), int(p2_y)])
+#
+#     # essential matrix
+#     E, mask = cv2.findEssentialMat(np.array(image1_points), np.array(image2_points), k)
+#     _, rmat, tvec, mask = cv2.recoverPose(E, np.array(image1_points), np.array(image2_points), dataset_handler.k)
+    
+    ### END CODE HERE ###
+    
+    return rmat, tvec, image1_points, image2_points
+
+i = 48
+match_list = filtered_match_lists[i]
+query_kp_list = kp_lists[i]
+train_kp_list = kp_lists[i+1]
+k = dataset_handler.k
+depth = dataset_handler.depth_maps[i]
+
+rmat, tvec, image1_points, image2_points = estimate_motion(match_list, query_kp_list, train_kp_list, k, depth1=depth)
+
+print("Estimated rotation:\n {0}".format(rmat))
+print("Estimated translation:\n {0}".format(tvec))
+
+
+query_image  = dataset_handler.images_rgb[i]
+train_image = dataset_handler.images_rgb[i + 1]
+
+#image_move = visualize_camera_movement(query_image, image1_points, train_image, image2_points)
+#plt.figure(figsize=(16, 12), dpi=100)
+#plt.imshow(image_move)
+#plt.show()
+
+def estimate_trajectory(estimate_motion, filtered_match_lists, kp_list, k, depth_maps=[]):
+    """
+    Estimate complete camera trajectory from subsequent image pairs
+
+    Arguments:
+    estimate_motion -- a function which estimates camera motion from a pair of subsequent image frames
+    matches -- list of matches for each subsequent image pair in the dataset.
+               Each matches[i] is a list of matched features from images i and i + 1
+    des_list -- a list of keypoints for each image in the dataset
+    k -- camera calibration matrix
+
+    Optional arguments:
+    depth_maps -- a list of depth maps for each frame. This argument is not needed if you use Essential Matrix Decomposition
+
+    Returns:
+    trajectory -- a 3xlen numpy array of the camera locations, where len is the lenght of the list of images and
+                  trajectory[:, i] is a 3x1 numpy vector, such as:
+
+                  trajectory[:, i][0] - is X coordinate of the i-th location
+                  trajectory[:, i][1] - is Y coordinate of the i-th location
+                  trajectory[:, i][2] - is Z coordinate of the i-th location
+
+                  * Consider that the origin of your trajectory cordinate system is located at the camera position
+                  when the first image (the one with index 0) was taken. The first camera location (index = 0) is geven
+                  at the initialization of this function
+
+    """
+    trajectory = np.zeros((3, 1))
+
+    ### START CODE HERE ###
+    RT = np.identity(4)
+    for i in range(len(filtered_match_lists)):
+        match_list = filtered_match_lists[i]
+        query_kp_list = kp_lists[i]
+        train_kp_list = kp_lists[i + 1]
+        depth = depth_maps[i]
+        rmat, tvec, image1_points, image2_points = estimate_motion(match_list, query_kp_list, train_kp_list, k, depth1=depth)
+
+        rt_i = np.hstack([rmat, tvec])
+        rt_i = np.vstack([rt_i, np.zeros([1, 4])])
+        rt_i[-1, -1] = 1
+
+#       https://docs.opencv.org/3.4.3/d9/dab/tutorial_homography.html
+        rt_i_inv = np.linalg.inv(rt_i)
+
+        RT = np.dot(RT, rt_i_inv)
+        camera_location = np.array(RT[:3, 3]).reshape(3,1)
+        trajectory = np.hstack([trajectory, camera_location])
+
+    ### END CODE HERE ###
+
+    return trajectory
+
+depth_maps = dataset_handler.depth_maps
+trajectory = estimate_trajectory(estimate_motion, filtered_match_lists, kp_lists, k, depth_maps=depth_maps)
+print(trajectory.shape)
+i = 1
+print("Camera location in point {0} is: \n {1}\n".format(i, trajectory[:, [i]]))
+
+# Remember that the length of the returned by trajectory should be the same as the length of the image array
+print("Length of trajectory: {0}".format(trajectory.shape[1]))
+
+# Part 1. Features Extraction
+images = dataset_handler.images
+kp_list, des_list = extract_features_dataset(images, extract_features)
+
+
+# Part II. Feature Matching
+matches = match_features_dataset(des_list, match_features)
+
+# Set to True if you want to use filtered matches or False otherwise
+is_main_filtered_m = True
+if is_main_filtered_m:
+    dist_threshold = 0.75
+    filtered_matches = filter_matches_dataset(filter_match_list_by_distance, matches, dist_threshold)
+    matches = filtered_matches
+
+
+# Part III. Trajectory Estimation
+depth_maps = dataset_handler.depth_maps
+trajectory = estimate_trajectory(estimate_motion, matches, kp_list, k, depth_maps=depth_maps)
+
+
+#!!! Make sure you don't modify the output in any way
+# Print Submission Info
+#print("Trajectory X:\n {0}".format(trajectory[0,:].reshape((1,-1))))
+#print("Trajectory Y:\n {0}".format(trajectory[1,:].reshape((1,-1))))
+#print("Trajectory Z:\n {0}".format(trajectory[2,:].reshape((1,-1))))
+
+visualize_trajectory(trajectory)
