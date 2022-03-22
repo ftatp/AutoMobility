@@ -108,3 +108,15 @@ When we apply this into all available frames, we can approximate to the real tra
 <p align="center">
   <img src="https://user-images.githubusercontent.com/22390526/159380968-93c6618e-54bc-4103-94c9-ca110b164ae8.png" alt="drawing" width="560"/>
 </p>
+
+  ### Environment Perception
+  
+  The depth map is not only useful in trajectory estimation, but also in environment perception. This means the detection of the road, objects, traffic lights, signatures, etc. In this sub section we will check how to calculate the plane equation in world coordinates and  where obstacles are placed. A frame will be offered with the segementation data and the depth map which are supposed to be processed before detection.
+  To calculate the road's plane equation, we first need to convert all the pixel's uv coordinated into world coordinates. This can be done by using the image size and the depth value of the pixel we want to convert. After this conversion, we have to distinguish which world coordinates belongs to the road plane equation using the segmentation data. We can choose random 3 points of the whole set of these distinguished road points, and use it to calculate the equation. Of course, only 1 try of random selection is not enough to claim that the equation is fully correct, so we do this several time and decrease the error. Now we can estimate where the self-driving car can physically travel. During the execution of the implement, you can get a plot like this:
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/22390526/159595030-752ef13e-1305-4b1b-ab3e-e88001c556fe.png" alt="drawing" width="560"/>
+</p>
+  
+The left is the given frame, and the right is the 3d plot of where the vehicle can move. Now we need to detect the obstacles on the road (which are shown in boxes), similar to the implement done in the first sub section.
+
