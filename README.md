@@ -118,5 +118,12 @@ When we apply this into all available frames, we can approximate to the real tra
   <img src="https://user-images.githubusercontent.com/22390526/159595030-752ef13e-1305-4b1b-ab3e-e88001c556fe.png" alt="drawing"/>
 </p>
   
-The left is the given frame, and the right is the 3d plot of where the vehicle can move. Now we need to detect the obstacles on the road (which are shown in boxes), similar to the implement done in the first sub section.
+The left is the given frame, and the right is the 3d plot of where the vehicle can move. The boxes are the match of these two images.
 
+After the process of the road plane detection, we now need to need to know where the vehicle __actually__ can move, not physically but legally, by detecting the lanes. We will learn what apis are useful to detect the lanes, add finally construct the extrapolated lines.
+
+The final task of this section is to detect the obstacles on the road, similar what we have done in the first subsection. The different point is that now we cannot use the template image, instead the object detection results (progressed by CNNN) and the segementation data. We will distinguish important objects from the detection and locate where the objects are, again, using depth map and segmentation. The results will show like this:
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/22390526/159597421-4f113b3f-a344-44cb-89b0-797f80a93549.png" alt="drawing"/>
+</p>
