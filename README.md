@@ -127,3 +127,10 @@ The final task of this section is to detect the obstacles on the road, similar w
 <p align="center">
   <img src="https://user-images.githubusercontent.com/22390526/159597421-4f113b3f-a344-44cb-89b0-797f80a93549.png" alt="drawing"/>
 </p>
+  
+## Motion Planning
+
+### Occupancy Grid
+  To know where
+  
+https://youtu.be/cpduo06swFI
