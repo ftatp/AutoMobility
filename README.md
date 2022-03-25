@@ -127,3 +127,20 @@ The final task of this section is to detect the obstacles on the road, similar w
 <p align="center">
   <img src="https://user-images.githubusercontent.com/22390526/159597421-4f113b3f-a344-44cb-89b0-797f80a93549.png" alt="drawing"/>
 </p>
+  
+## Motion Planning
+Finishing the perception stage, now the self-driving car is able to plan where to go. This planning stage can be divided into mission planning, behavior planning, and local planning. This section introduces what are the differences between these planners, and how to develop them.
+  
+### Occupancy Grid
+  In previous sections, to know where the vehicle is, we have used a visual method, but there is a more easier approach using the LIDAR sensor. Using the LIDAR sensor we can confortably construct an occupancy grid to know where obstacles are on the road. An occupancy grid is a grid that each point shows whether it is occupied by some object. This subsection show the implement of the occpancy grid construction using inverse measurement model. The results will show as below:
+  
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/22390526/160032225-9571b1a2-fb5c-4554-b8e8-86b478c27a74.png" alt="drawing"/>
+</p>
+The left image is showing the ground truth of the obstacle's position, while the right describes the estimated positions which are quire similar to the left. You can also observe the process of the construction on an animation clip below:
+
+<p align="center">
+  <a href="https://youtu.be/cpduo06swFI">  
+    <img src="https://user-images.githubusercontent.com/22390526/160032662-6ece3232-48ef-4971-b2d2-d17306242b72.png" alt="drawing"/>
+  </a>
+</p>
