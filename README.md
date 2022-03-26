@@ -141,7 +141,7 @@ The left image is showing the ground truth of the obstacle's position, while the
 
 <p align="center">
   <a href="https://youtu.be/cpduo06swFI">  
-    <img src="https://user-images.githubusercontent.com/22390526/160032662-6ece3232-48ef-4971-b2d2-d17306242b72.png" alt="drawing"/>
+    <img src="https://user-images.githubusercontent.com/22390526/160032662-6ece3232-48ef-4971-b2d2-d17306242b72.png" alt="drawing" width="560"/>
   </a>
 </p>
 
