@@ -144,3 +144,21 @@ The left image is showing the ground truth of the obstacle's position, while the
     <img src="https://user-images.githubusercontent.com/22390526/160032662-6ece3232-48ef-4971-b2d2-d17306242b72.png" alt="drawing"/>
   </a>
 </p>
+
+### Dijkstra Algorithm
+  Mission planning means the deciding the navigation from point A to B on the map. It is the most high level of the planning system, and the goal is to find the most less costed path between the 2 points. Dijkstra algoritm is one famous method to figure out the most least costed path. This subsection introduces the implementation
+of this method. We will understand how to use the osmnx package and compare the implemented results with the ground truth data of osmnx. The dijkstra result will show like this: 
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/22390526/160219560-d4f7b11a-cc9a-4389-92ea-e3b32f5ff567.png" alt="drawing" width="560"/>
+</p>
+  
+### Motion Planning
+  In this subsection, we will implement the whole process of motion planning, except the mission planner that is already introduced above. There are many stages, including the behavior planner, local planner, path planner, etc. We need to understand every part of the planner to make a non-collision, safe, and fast self driving vehicle. The result is shown as a video clip below:
+
+<p align="center">
+  <a href="https://youtu.be/1dyd8Ypuq1U">  
+    <img src="https://user-images.githubusercontent.com/22390526/160219961-f3095b10-ddd9-4830-a0d2-c34662e9e691.png" alt="drawing" width="560"/>
+  </a>
+</p>
+  
